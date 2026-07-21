@@ -22,8 +22,29 @@ function Icon({ name, weight = "regular", label }) {
   );
 }
 
+/** Vite base path without trailing slash (e.g. "/Agent" on GitHub Pages). */
+const BASE = (import.meta.env.BASE_URL || "/").replace(/\/+$/, "");
+
+function stripBase(pathname) {
+  if (BASE && (pathname === BASE || pathname.startsWith(`${BASE}/`))) {
+    return pathname.slice(BASE.length) || "/";
+  }
+  return pathname;
+}
+
+function withBase(to) {
+  const path = to.startsWith("/") ? to : `/${to}`;
+  if (!BASE) return path;
+  return path === "/" ? `${BASE}/` : `${BASE}${path}`;
+}
+
+function assetUrl(path) {
+  const clean = path.replace(/^\//, "");
+  return `${import.meta.env.BASE_URL}${clean}`;
+}
+
 function resolveRoute(pathname) {
-  const path = pathname.replace(/\/+$/, "") || "/";
+  const path = stripBase(pathname).replace(/\/+$/, "") || "/";
   const chapterMatch = path.match(/^\/learn\/([^/]+)$/);
   const guideMatch = path.match(/^\/frameworks\/(adk|langgraph)$/);
 
@@ -40,19 +61,20 @@ function resolveRoute(pathname) {
 }
 
 function useAppRoute() {
-  const [pathname, setPathname] = useState(() => window.location.pathname);
+  const [pathname, setPathname] = useState(() => stripBase(window.location.pathname));
 
   useEffect(() => {
-    const onPopState = () => setPathname(window.location.pathname);
+    const onPopState = () => setPathname(stripBase(window.location.pathname));
     window.addEventListener("popstate", onPopState);
     return () => window.removeEventListener("popstate", onPopState);
   }, []);
 
   function navigate(to) {
-    const nextPath = to.replace(/\/+$/, "") || "/";
-    if (nextPath !== window.location.pathname) {
-      window.history.pushState({}, "", nextPath);
-      setPathname(nextPath);
+    const nextLogical = to.replace(/\/+$/, "") || "/";
+    const nextHref = withBase(nextLogical);
+    if (nextLogical !== stripBase(window.location.pathname)) {
+      window.history.pushState({}, "", nextHref);
+      setPathname(nextLogical);
     }
     window.scrollTo({ top: 0, behavior: "auto" });
   }
@@ -77,7 +99,7 @@ function AppLink({ to, navigate, onClick, children, ...props }) {
     navigate(to);
   }
 
-  return <a href={to} onClick={handleClick} {...props}>{children}</a>;
+  return <a href={withBase(to)} onClick={handleClick} {...props}>{children}</a>;
 }
 
 function PageMasthead({ eyebrow, title, lede, backTo, backLabel, navigate }) {
@@ -372,7 +394,7 @@ export function App() {
                 </div>
               </div>
               <figure className="hero-art" aria-label="Vintage books representing foundations, reasoning, and systems">
-                <img src="/assets/hero-books.png" alt="Three archival books beside a botanical branch and a stone" />
+                <img src={assetUrl("assets/hero-books.png")} alt="Three archival books beside a botanical branch and a stone" />
               </figure>
             </section>
 
@@ -380,7 +402,7 @@ export function App() {
               <div className="section-label"><span>Featured lesson</span><span>Start with intent</span></div>
               <div className="featured-grid">
                 <figure className="lesson-art">
-                  <img src="/assets/lesson-foundations.png" alt="Architectural pencil illustration with abstract agent-loop annotations" />
+                  <img src={assetUrl("assets/lesson-foundations.png")} alt="Architectural pencil illustration with abstract agent-loop annotations" />
                 </figure>
                 <div className="featured-copy">
                   <p className="eyebrow">{activeModule.eyebrow}</p>

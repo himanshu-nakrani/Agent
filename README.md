@@ -10,6 +10,7 @@
 </p>
 
 <p align="center">
+  <a href="https://himanshu-nakrani.github.io/Agent/"><strong>Live site</strong></a> ·
   <a href="#choose-a-path">Choose a path</a> ·
   <a href="#library-map">Library map</a> ·
   <a href="#run-it-locally">Run locally</a> ·
@@ -112,6 +113,14 @@ flowchart TD
 - **Framework material is explicit.** Google ADK and LangGraph guides explain concepts, patterns, and trade-offs in their own destinations.
 - **Sources stay visible.** Paper cards link to primary research or official issuer material; the coverage ledger records provenance.
 - **The route is intentional.** Sequential study, targeted reference reading, and literature-led exploration without forcing one pace on every learner.
+
+## Live site
+
+Deployed automatically to GitHub Pages on every push to `main`:
+
+**https://himanshu-nakrani.github.io/Agent/**
+
+The site is built with Vite (`base: /Agent/`) and published via [`.github/workflows/deploy-pages.yml`](./.github/workflows/deploy-pages.yml).
 
 ## Run it locally
 
